@@ -36,6 +36,36 @@ install_local_config_files() {
 }
 
 
+# foreach backend server (defined in config)
+# determine what weight to assign (if same VLAN, high weight, otherwise low)
+add_backend_servers() {
+  local _remote_name _remote_ip _weight _server_line
+  for _remote_name in "${BACKEND_SERVERS[@]}"; do
+    _remote_ip=$( hostname2ip "${_backend_server}" )
+    _weight=1
+    #TODO calculate weight by checking is_same_vlan()
+    _server_line="    server ${_remote_name} ${_remote_ip}:636 check weight ${_weight}"
+    sed -i "/___BACKEND_SERVERS___/a ${_server_line}"
+  done
+}
+
+
+is_same_vlan() {
+  local _remomte_ip
+  _remote_ip=$1
+  # test if the other IP is reachable on the same broadcast domain
+  # (which implies same VLAN if no routing is involved) using ping or arp.
+
+  # # Ping the target IP
+  # ping -c 1 <target_ip>
+
+  # # Check ARP table for MAC address resolution (indicates Layer 2 connectivity)
+  # arp -n <target_ip>
+
+  # Note: If the target IP is on a different VLAN, the traffic will be routed, and the ARP table will only show the MAC address of the default gateway, not the target device. If no gateway is involved, a failure to resolve the MAC address via ARP indicates they are on different broadcast domains (VLANs).
+}
+
+
 # reconfigure_haproxy_service() {
 #   # Reconfigure haproxy service to read files from conf.d
 #   local _src_dir
@@ -73,6 +103,8 @@ mk_conf_d
 mk_global_conf
 
 install_local_config_files
+
+add_backend_servers
 
 validate_configs
 

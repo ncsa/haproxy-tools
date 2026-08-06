@@ -25,6 +25,7 @@ update_config() {
 [[ -f "${CONFIG}" ]] && {
   echo "Config file already exists ..." 1>&2
   ls -l "${CONFIG}"
+  cat "${CONFIG}"
   exit 0
 }
 
@@ -51,3 +52,7 @@ REAL_CFG_PATH="${REAL_CFG_DIR}"/config
 mkdir -p "${REAL_CFG_DIR}"
 mv "${TMP_CONFIG}" "${REAL_CFG_PATH}"
 ln -s "${REAL_CFG_PATH}" "${CONFIG}"
+echo "Config file is:"
+ls -l "${CONFIG}"
+cat "${CONFIG}"
+echo
