@@ -88,3 +88,8 @@ firewall_add_allow_rule() {
 assert_puppet_disabled
 
 firewall_allow_ldaps
+
+firewall_allow_keepalived
+
+firewall_allow_haproxy_stats
+
