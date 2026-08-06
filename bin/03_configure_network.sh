@@ -82,7 +82,7 @@ firewall_add_allow_rule() {
 
 
 configure_sysctl() {
-  local _src_dir _tgt_dir
+  local _src_dir
   # copy sysctl.d files into place
   _src_dir="${FILES}${SYSCTL_DIR}"
   cp -t "${SYSCTL_DIR}" "${_src_dir}"/*.conf

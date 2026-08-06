@@ -30,7 +30,7 @@ ENDHERE
 
 
 install_local_config_files() {
-  local _src_dir _tgt_dir
+  local _src_dir
   _src_dir="${FILES}${CONF_D}"
   cp -t "${CONF_D}" "${_src_dir}"/*.cfg
 }

@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+#TODO - update to check local file for each setting in 'example'
+#       allow to change, add/remove (if an array)
+
 INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 

@@ -15,8 +15,10 @@ NC='\033[0m'  # No Color
 
 # General useful vars
 TOOLS_PKG_NAME='haproxy-tools'
-HOST=$( hostname -f )
 TODAY=$( date +%Y%m%d )
+HOST=$( hostname -f )
+ETH_PRIMARY_IP=$( dig +short "${HOST}" )
+ETH_PRIMARY_INTERFACE=$( ip -br a s to "${ETH_PRIMARY_IP}" | awk '{print $1}}' )
 
 # certificate related
 LETSENCRYPT_BASE=/etc/letsencrypt
