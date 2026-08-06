@@ -22,7 +22,7 @@ mk_conf_d() {
 mk_keepalived_state() {
   # MASTER if local hostname is the first one in list of KEEPALIVED_SERVERS
   # BACKUP otherwise
-  if [[ "${ETH_PRIMARY_IP}" == "${KEEPALIVED_SERVERS[0]}" ]] ; then
+  if [[ "${HOST}" == "${KEEPALIVED_SERVERS[0]}" ]] ; then
     KEEPALIVED_STATE=MASTER
   fi
 }
@@ -45,7 +45,7 @@ mk_keepalived_peer_ip() {
   # default setting already assumed state=BACKUP
   # so only need to check if state=MASTER and if so, update appropriately
   if [[ "${KEEPALIVED_STATE}" == 'MASTER' ]] ; then
-    KEEPALIVED_PEER_IP="${KEEPALIVED_SERVERS[1]}"
+    KEEPALIVED_PEER_IP=$( hostname2ip "${KEEPALIVED_SERVERS[1]}" )
   fi
 }
 
@@ -54,7 +54,7 @@ replace_original_config() {
   local _pattern
   _pattern='___ CUSTOM CONFIG INCLUDE FROM conf.d ___'
   # skip if config already updated
-  grep -F "${_pattern}" && return 0
+  grep -F "${_pattern}" "${CONF_ORIG}" && return 0
   # backup old config
   mv "${CONF_ORIG}" "${CONF_ORIG}".orig.${TS}
   >"${CONF_ORIG}" cat << ENDHERE
