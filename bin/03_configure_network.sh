@@ -5,8 +5,8 @@ INSTALL_DIR='___INSTALL_DIR___'
 
 set -x
 
-BIN="${INSTALL_DIR}"/bin
 FILES="${INSTALL_DIR}"/files
+SYSCTL_DIR=/etc/sysctl.d
 IPTABLES_RULE_NUM=$( \
   iptables -t filter -L INPUT -n --line-numbers \
   | awk '/^[0-9]/{num=$1}END{print num}'
@@ -81,6 +81,16 @@ firewall_add_allow_rule() {
 }
 
 
+configure_sysctl() {
+  local _src_dir _tgt_dir
+  # copy sysctl.d files into place
+  _src_dir="${FILES}${SYSCTL_DIR}"
+  cp -t "${SYSCTL_DIR}" "${_src_dir}"/*.conf
+  # restart sysctl
+  sysctl --system
+}
+
+
 ###
 # MAIN
 ###
@@ -93,3 +103,4 @@ firewall_allow_keepalived
 
 firewall_allow_haproxy_stats
 
+configure_sysctl
