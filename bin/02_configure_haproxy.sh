@@ -45,7 +45,7 @@ add_backend_servers() {
     _weight=1
     #TODO calculate weight by checking is_same_vlan()
     _server_line="    server ${_remote_name} ${_remote_ip}:636 check weight ${_weight}"
-    sed -i "/___BACKEND_SERVERS___/a ${_server_line}"
+    sed -i "/___BACKEND_SERVERS___/a ${_server_line}" "${CONF_D}"/30-ldaps.cfg
   done
 }
 
@@ -106,8 +106,8 @@ install_local_config_files
 
 add_backend_servers
 
-validate_configs
-
 backup_original_config
+
+validate_configs
 
 restart_haproxy
