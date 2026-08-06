@@ -93,7 +93,7 @@ mk_symlinks() {
   if [[ -d "${_conf_bkup_dir}" ]] ; then
     _conf_bkup_file=$( find "${_conf_bkup_dir}" -type f -name config | head -1 )
     if [[ -f "${_conf_bkup_file}" ]] ; then
-      _links["${CONFIG}"]="${_conf_bkup_file}"
+      _links[${CONFIG}]="${_conf_bkup_file}"
     fi
   fi
 

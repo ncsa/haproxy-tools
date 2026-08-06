@@ -8,7 +8,10 @@ CONF_ORIG=/etc/haproxy/haproxy.cfg
 CONF_D=/etc/haproxy/conf.d
 # SERVICE_DIR=/etc/systemd/system/haproxy.service.d
 
-
+#TODO - Do we really only need to install conf.d/20-ldaps.cfg ??
+#TODO - or maybe get global and defaults from RHEL original cfg, then install
+#       20-ldaps.cfg (this way the basic config from RHEL assuming http doesn't
+#       get setup
 
 mk_conf_d() {
   mkdir -p "${CONF_D}"
@@ -50,7 +53,7 @@ backup_original_config() {
 
 
 validate_configs() {
-  haproxy -c -f "${CONF_D}" || die 'Error validating config files'
+  haproxy -c -f "${CONF_ORIG}" -f "${CONF_D}" || die 'Error validating config files'
 }
 
 
