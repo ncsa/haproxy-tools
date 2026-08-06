@@ -13,6 +13,15 @@ IPTABLES_RULE_NUM=$( \
 )
 
 
+assert_puppet_disabled() {
+  local _puppet _lockfile
+  _puppet=$( type puppet )
+  [[ -z "${_puppet}" ]] && return 0
+  _lockfile=$( "${_puppet}" agent --configprint agent_disabled_lockfile )
+  [[ -f "${_lockfile}" ]] || die 'puppet is still enabled'
+}
+
+
 firewall_allow_ldaps() {
   # allow incoming from the world to tcp:636
   local _proto _source _dest _dport
@@ -75,5 +84,7 @@ firewall_add_allow_rule() {
 ###
 # MAIN
 ###
+
+assert_pupppet_disabled
 
 firewall_allow_ldaps
