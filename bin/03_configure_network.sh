@@ -68,7 +68,7 @@ firewall_add_allow_rule() {
   [[ -n "${_proto}" ]] && _opt_p=( '-p' "${_proto}" )
   [[ -n "${_src}" ]] && _opt_s=( '-s' "${_src}" )
   [[ -n "${_dest}" ]] && _opt_d=( '-d' "${_dest}" )
-  [[ -z "${_dport}" ]] && _opt_dport=( '--dport' "${_dport}" )
+  [[ -n "${_dport}" ]] && _opt_dport=( '--dport' "${_dport}" )
   _all_opts=(
     "${_opt_p[@]}"
     "${_opt_s[@]}"
@@ -85,6 +85,6 @@ firewall_add_allow_rule() {
 # MAIN
 ###
 
-assert_pupppet_disabled
+assert_puppet_disabled
 
 firewall_allow_ldaps
