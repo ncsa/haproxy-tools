@@ -78,7 +78,7 @@ update_config_files() {
   _tunders=( $( grep -h -oP '\b(___\w+___)' "${CONF_D}"/*.conf | sort -u ) )
   for tunder in "${_tunders[@]}" ; do
     # _varname="${v:3:$((${#v} - 6))}"
-    declare -n _ref="${v:3:$((${#v} - 6))}"
+    declare -n _ref="${tunder:3:$((${#tunder} - 6))}"
     sed -i -e "s?$tunder?$_ref?" "${CONF_D}"/*.conf
   done
 }
