@@ -4,14 +4,14 @@ INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 BIN="${INSTALL_DIR}"/bin
 FILES="${INSTALL_DIR}"/files
-CONF_ORIG=/etc/haproxy/haproxy.conf
-CONF_D=/etc/haproxy/haproxy.conf.d
-SERVICE_DIR=/etc/systemd/system/haproxy.service.d
+CONF_ORIG=/etc/haproxy/haproxy.cfg
+CONF_D=/etc/haproxy/conf.d
+# SERVICE_DIR=/etc/systemd/system/haproxy.service.d
 
 
 
 mk_conf_d() {
-  mkdir -p /etc/hs
+  mkdir -p "${CONF_D}"
 }
 
 
@@ -33,13 +33,19 @@ install_local_config_files() {
 }
 
 
-reconfigure_haproxy_service() {
-  # Reconfigure haproxy service to read files from conf.d
-  local _src_dir
-  _src_dir="${FILES}${SERVICE_DIR}"
-  mkdir -p "${SERVICE_DIR}"
-  cp -t "${SERVICE_DIR}" "${_src_dir}"/*.conf
-  systemctl daemon-reload
+# reconfigure_haproxy_service() {
+#   # Reconfigure haproxy service to read files from conf.d
+#   local _src_dir
+#   _src_dir="${FILES}${SERVICE_DIR}"
+#   mkdir -p "${SERVICE_DIR}"
+#   cp -t "${SERVICE_DIR}" "${_src_dir}"/*.conf
+#   systemctl daemon-reload
+# }
+
+
+backup_original_config() {
+  mv "${CONF_ORIG}" "${CONF_ORIG}".orig
+  echo "# See configs in /etc/haproxy/conf.d" > "${CONF_ORIG}"
 }
 
 
@@ -55,9 +61,6 @@ restart_haproxy() {
 }
 
 
-validate_haproxy_running() {
-}
-
 ###
 # MAIN
 ###
@@ -70,6 +73,6 @@ install_local_config_files
 
 validate_configs
 
-reconfigure_haproxy_service
+backup_original_config
 
 restart_haproxy
