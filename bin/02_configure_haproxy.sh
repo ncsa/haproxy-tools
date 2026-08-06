@@ -41,7 +41,7 @@ install_local_config_files() {
 add_backend_servers() {
   local _remote_name _remote_ip _weight _server_line
   for _remote_name in "${BACKEND_SERVERS[@]}"; do
-    _remote_ip=$( dig +short "${_remote_name}" )
+    _remote_ip=$( hostname2ip "${_remote_name}" )
     [[ -z "${_remote_ip}" ]] && die "Couldn't get IP for '${_remote_name}'"
     _weight=1
     #TODO calculate weight by checking is_same_vlan()

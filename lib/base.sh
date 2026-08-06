@@ -134,6 +134,11 @@ mk_passwd() {
 }
 
 
+hostname2ip() {
+  dig +short "${1}"
+}
+
+
 validate_file() {
   [[ $DEBUG -eq $YES ]] && set -x
   local _fn="${1}"
