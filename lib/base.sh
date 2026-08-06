@@ -14,7 +14,7 @@ RED='\033[0;31m'
 NC='\033[0m'  # No Color
 
 # General useful vars
-TOOLS_PKG_NAME='proxy-tools'
+TOOLS_PKG_NAME='haproxy-tools'
 HOST=$( hostname -f )
 TODAY=$( date +%Y%m%d )
 
