@@ -7,7 +7,7 @@ NO=1  #no touchee
 # ###
 # User might want to change these, though should use environment vars
 # ###
-INSTALL_DIR="${PROXYTOOLS_INSTALL_DIR:-$HOME/haproxy-tools}"
+INSTALL_DIR="${HAPROXYTOOLS_INSTALL_DIR:-$HOME/haproxy-tools}"
 DEBUG=$YES
 VERBOSE=$YES
 # ###
@@ -84,16 +84,17 @@ install_subdirs() {
 
 mk_symlinks() {
   [[ $debug -eq $yes ]] && set -x
-  local _conf_bkup_dir _conf_bkup_file
+  local _conf_bkup_dir _conf_bkup_file _config_tgt
   declare -A _links=(
   )
 
   # Look for an existing config to restore
   _conf_bkup_dir="${HOME}"/.config/"${TOOLS_PKG_NAME}"
+  _config_tgt="${INSTALL_DIR}"/conf/config
   if [[ -d "${_conf_bkup_dir}" ]] ; then
     _conf_bkup_file=$( find "${_conf_bkup_dir}" -type f -name config | head -1 )
     if [[ -f "${_conf_bkup_file}" ]] ; then
-      _links[${CONFIG}]="${_conf_bkup_file}"
+      _links["${_config_tgt}"]="${_conf_bkup_file}"
     fi
   fi
 
