@@ -1,0 +1,45 @@
+Layout
+------
+haproxy.cfg              -> /etc/haproxy/haproxy.cfg          (global + defaults only)
+conf.d/10-stats.cfg       -> /etc/haproxy/conf.d/10-stats.cfg
+conf.d/20-ldap.cfg        -> /etc/haproxy/conf.d/20-ldap.cfg
+conf.d/30-ldaps.cfg       -> /etc/haproxy/conf.d/30-ldaps.cfg
+haproxy-override.conf     -> /etc/systemd/system/haproxy.service.d/override.conf
+
+Why a systemd override is needed
+---------------------------------
+RHEL9's packaged haproxy.service unit hardcodes
+`-f /etc/haproxy/haproxy.cfg` as the only config source. HAProxy itself
+supports passing a directory to -f (it will load every *.cfg file
+inside, alphabetically, skipping dotfiles and files without a .cfg
+extension) — but the shipped unit file doesn't do that by default, so
+you need the override to add a second -f pointing at conf.d/.
+
+Install steps
+-------------
+sudo mkdir -p /etc/haproxy/conf.d
+sudo cp haproxy.cfg /etc/haproxy/haproxy.cfg
+sudo cp conf.d/*.cfg /etc/haproxy/conf.d/
+
+sudo mkdir -p /etc/systemd/system/haproxy.service.d
+sudo cp haproxy-override.conf /etc/systemd/system/haproxy.service.d/override.conf
+
+sudo systemctl daemon-reload
+
+# Validate before restarting
+sudo haproxy -c -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d
+
+sudo systemctl restart haproxy
+sudo systemctl status haproxy
+
+Notes
+-----
+- File load order is alphabetical, hence the 10-/20-/30- prefixes —
+  keep that in mind since "global"/"defaults" must still come from
+  haproxy.cfg before anything in conf.d references them.
+- SELinux/firewalld steps are unchanged from the single-file version.
+- If you'd rather not touch systemd at all, the simpler alternative is
+  to just `cat` the conf.d files together into one haproxy.cfg — same
+  result, no override needed. The split only pays off if you want to
+  manage frontends/backends as separate files (e.g. via config
+  management tooling dropping in one file per service).
