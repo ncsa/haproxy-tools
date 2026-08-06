@@ -15,7 +15,7 @@ IPTABLES_RULE_NUM=$( \
 
 assert_puppet_disabled() {
   local _puppet _lockfile
-  _puppet=$( type puppet )
+  _puppet=$( which puppet )
   [[ -z "${_puppet}" ]] && return 0
   _lockfile=$( "${_puppet}" agent --configprint agent_disabled_lockfile )
   [[ -f "${_lockfile}" ]] || die 'puppet is still enabled'
