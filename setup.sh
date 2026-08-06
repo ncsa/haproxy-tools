@@ -7,7 +7,7 @@ NO=1  #no touchee
 # ###
 # User might want to change these, though should use environment vars
 # ###
-INSTALL_DIR="${PROXYTOOLS_INSTALL_DIR:-$HOME/proxy-tools}"
+INSTALL_DIR="${PROXYTOOLS_INSTALL_DIR:-$HOME/haproxy-tools}"
 DEBUG=$YES
 VERBOSE=$YES
 # ###
