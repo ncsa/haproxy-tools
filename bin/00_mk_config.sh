@@ -37,11 +37,23 @@ get_config_varnames() {
 }
 
 
-print_config() {
-  echo 'CURRENT CONFIG'
-  echo '=============='
-  cat "${CONFIG}"
-  echo '=============='
+print_live_config() {
+  # Print the current state of all the CONFIG_VARS
+  local _vartype
+  for k in "${!CONFIG_NAMES[@]}" ; do
+    local -n _ref="$k"
+    _vartype="${CONFIG_NAMES[$k]}"
+    if [[ "${_vartype}" == 'array' ]] ; then
+      echo "${k}=("
+      for item in "${_ref[@]}" ; do
+        echo "  $item"
+      done
+      echo ')'
+    else
+      echo "${k}=$_ref"
+    fi
+    echo
+  done
 }
 
 
@@ -50,7 +62,7 @@ edit_vars() {
   local _next_action _keep_going _new_value _vartype
   _keep_going=$YES
   while [[ $_keep_going -eq $YES ]] ; do
-    print_config
+    print_live_config
     PS3='Choose a variable to edit, or quit: '
     select opt in "${!CONFIG_NAMES[@]}" 'quit'; do
       _next_action="${opt}"
@@ -127,21 +139,7 @@ edit_array() {
 
 save_config() {
   # Save the current state of all the CONFIG_VARS to temp file
-  local _vartype
-  for k in "${!CONFIG_NAMES[@]}" ; do
-    local -n _ref="$k"
-    _vartype="${CONFIG_NAMES[$k]}"
-    if [[ "${_vartype}" == 'array' ]] ; then
-      echo "${k}=("
-      for item in "${_ref[@]}" ; do
-        echo "  $item"
-      done
-      echo ')'
-    else
-      echo "${k}=$_ref"
-    fi
-    echo
-  done >"${TMP_CONFIG}"
+  print_live_config >"${TMP_CONFIG}"
 
   #( declare -p ) >"${TMP_CONFIG}"
   
@@ -160,6 +158,14 @@ backup_config() {
     mv "${CONFIG}" "${_real_cfg_path}"
     ln -s "${_real_cfg_path}" "${CONFIG}"
   fi
+}
+
+
+print_config() {
+  echo 'CURRENT CONFIG'
+  echo '=============='
+  cat "${CONFIG}"
+  echo '=============='
 }
 
 
