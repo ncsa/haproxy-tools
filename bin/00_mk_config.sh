@@ -85,6 +85,7 @@ edit_array() {
     echo "Contents of ${_varname}:"
     echo "${list_ref[@]}"
     echo
+    PS3='Choose an option for editing this config setting: '
     select opt in "${_main_menu[@]}" ; do
       _action="${opt}"
       break
@@ -99,6 +100,7 @@ edit_array() {
         list_ref=( "${list_ref[@]}" "${_new_items[@]}" )
         ;;
       Delete)
+        PS3='Which item to delete: '
         select elem in "${list_ref[@]}"; do
           _del_item="${elem}"
           _del_index=$((REPLY - 1)) #use 0-based index for bash array
