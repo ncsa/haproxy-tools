@@ -145,8 +145,13 @@ save_config() {
   #( declare -p ) >"${TMP_CONFIG}"
   
   # If temp is different, copy over the real config
-  diff -q "${TMP_CONFIG}" "${CONFIG}" \
-  || mv "${TMP_CONFIG}" "${CONFIG}"
+  diff -q "${TMP_CONFIG}" "${CONFIG}" || {
+    # copy so it respects a symlink (move would overwrite a symlink and make
+      # a regular file)
+    cp "${TMP_CONFIG}" "${CONFIG}"
+    rm "${TMP_CONFIG}"
+  }
+
 }
 
 
