@@ -39,8 +39,9 @@ get_config_varnames() {
 
 print_live_config() {
   # Print the current state of all the CONFIG_VARS
-  local _vartype
-  for k in "${!CONFIG_NAMES[@]}" ; do
+  local _vartype _var_names
+  _var_names=( echo "${!CONFIG_NAMES[@]}" | sort )
+  for k in "${_var_names[@]}" ; do
     local -n _ref="$k"
     _vartype="${CONFIG_NAMES[$k]}"
     if [[ "${_vartype}" == 'array' ]] ; then

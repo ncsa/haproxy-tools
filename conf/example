@@ -1,7 +1,7 @@
 ###
 # HAProxy related
 ###
-BACKEND_SERVERS=(
+HAPROXY_BACKEND_SERVERS=(
 )
 
 
