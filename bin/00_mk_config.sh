@@ -31,7 +31,7 @@ get_config_varnames() {
     _context=$( echo "${part}" | cut -d= -f2 )
     _vartype=string
     # if context starts with an open-parenthesis, then type is array
-    [[ "${_context}" =~ ^'\(' ]] && _vartype=array
+    [[ "${_context}" =~ ^'(' ]] && _vartype=array
     CONFIG_NAMES["${_varname}"]="${_vartype}"
   done
 }
@@ -47,7 +47,7 @@ print_config() {
 
 edit_vars() {
   # start a loop to allow VARs to be edited
-  local _next_action _keep_going _new_value
+  local _next_action _keep_going _new_value _vartype
   _keep_going=$YES
   while [[ $_keep_going -eq $YES ]] ; do
     print_config
@@ -56,12 +56,12 @@ edit_vars() {
       _next_action="${opt}"
       break
     done
-    case _next_action in
+    case "${_next_action}" in
       quit)
         _keep_going=$NO
         ;;
       *)
-        _vartype="${CONFIG_NAMES[$opt]}"
+        _vartype="${CONFIG_NAMES[$_next_action]}"
         if [[ "${_vartype}" == 'array' ]] ; then
           edit_array "${_next_action}"
         else
@@ -144,13 +144,13 @@ save_config() {
   #( declare -p ) >"${TMP_CONFIG}"
   
   # If temp is different, copy over the real config
-  #diff -q "${TMP_CONFIG}" "${CONFIG}" && mv "${TMP_CONFIG}" "${CONFIG}"
+  diff -q "${TMP_CONFIG}" "${CONFIG}" && mv "${TMP_CONFIG}" "${CONFIG}"
 }
 
 
 backup_config() {
   local _real_cfg_dir _real_cfg_path
-  if ! [[ -l "${CONFIG}" ]] ; then
+  if ! [[ -L "${CONFIG}" ]] ; then
     _real_cfg_dir="${HOME}"/.config/"${TOOLS_PKG_NAME}"
     mkdir -p "${_real_cfg_dir}"
     _real_cfg_path="${_real_cfg_dir}"/config
