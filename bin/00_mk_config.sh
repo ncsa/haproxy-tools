@@ -79,7 +79,7 @@ edit_array() {
   local -n list_ref="$1"
   local _varname _main_menu _continue _action _new_item _new_items _del_item _del_index
   _varname="$1"
-  _main_menu=( 'Add One' 'Add Multiple' Delete Show Quit )
+  _main_menu=( 'Add One' 'Add Multiple' Delete Show Done )
   _continue=$YES
   while [[ ${_continue} == $YES ]] ; do
     echo "Contents of ${_varname}:"
@@ -117,7 +117,7 @@ edit_array() {
         echo "${list_ref[@]}"
         echo
         ;;
-      Quit)
+      Done)
         _continue=$NO
         ;;
     esac
@@ -146,7 +146,8 @@ save_config() {
   #( declare -p ) >"${TMP_CONFIG}"
   
   # If temp is different, copy over the real config
-  diff -q "${TMP_CONFIG}" "${CONFIG}" && mv "${TMP_CONFIG}" "${CONFIG}"
+  diff -q "${TMP_CONFIG}" "${CONFIG}" \
+  || mv "${TMP_CONFIG}" "${CONFIG}"
 }
 
 
