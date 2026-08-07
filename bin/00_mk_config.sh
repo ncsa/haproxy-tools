@@ -7,16 +7,156 @@ INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 
 SAMPLE_CONFIG="${INSTALL_DIR}"/conf/example
+declare -A CONFIG_NAMES
 TMP_CONFIG="${INSTALL_DIR}"/conf/tmp
 #CONFIG ... is defined in lib/base.sh
 
 
-update_config() {
-  [[ $DEBUG -eq $YES ]] && set -x
-  local _varname _value
+mk_config() {
+  if [[ -f "${CONFIG}" ]] ; then
+    echo 'Found existing config file.'
+    ask_no_yes 'Want to review it?' || exit 0
+  else
+    cp "${SAMPLE_CONFIG}" "${CONFIG}"
+  fi
+}
+
+
+get_config_varnames() {
+  # get variable names from config file
+  local _config_parts _varname _context _vartype
+  _config_parts=( $( awk -F= 'NF>1' "${CONFIG}" ) )
+  for part in "${_config_parts[@]}" ; do
+    _varname=$( echo "${part}" | cut -d= -f1 )
+    _context=$( echo "${part}" | cut -d= -f2 )
+    _vartype=string
+    # if context starts with an open-parenthesis, then type is array
+    [[ "${_context}" =~ ^'\(' ]] && _vartype=array
+    CONFIG_NAMES["${_varname}"]="${_vartype}"
+  done
+}
+
+
+print_config() {
+  echo 'CURRENT CONFIG'
+  echo '=============='
+  cat "${CONFIG}"
+  echo '=============='
+}
+
+
+edit_vars() {
+  # start a loop to allow VARs to be edited
+  local _next_action _keep_going _new_value
+  _keep_going=$YES
+  while [[ $_keep_going -eq $YES ]] ; do
+    print_config
+    PS3='Choose a variable to edit, or quit: '
+    select opt in "${!CONFIG_NAMES[@]}" 'quit'; do
+      _next_action="${opt}"
+      break
+    done
+    case _next_action in
+      quit)
+        _keep_going=$NO
+        ;;
+      *)
+        _vartype="${CONFIG_NAMES[$opt]}"
+        if [[ "${_vartype}" == 'array' ]] ; then
+          edit_array "${_next_action}"
+        else
+          read -p 'New value: ' _new_value
+          local -n _ref="${_next_action}"
+          _ref="${_new_value}"
+        fi
+        ;;
+    esac
+  done
+}
+
+
+edit_array() {
+  local -n list_ref="$1"
+  local _varname _main_menu _continue _action _new_item _new_items _del_item _del_index
   _varname="$1"
-  _value="$2"
-  sed -i -e "/^${_varname}/c ${_varname}=${_value}" "${TMP_CONFIG}"
+  _main_menu=( 'Add One' 'Add Multiple' Delete Show Quit )
+  _continue=$YES
+  while [[ ${_continue} == $YES ]] ; do
+    echo "Contents of ${_varname}:"
+    echo "${list_ref[@]}"
+    echo
+    select opt in "${_main_menu[@]}" ; do
+      _action="${opt}"
+      break
+    done
+    case "${_action}" in
+      'Add One')
+        read -p 'New item: ' _new_item
+        list_ref+=( "${_new_item}" )
+        ;;
+      'Add Multiple')
+        read -a _new_items -p 'New items (space separated list): '
+        list_ref=( "${list_ref[@]}" "${_new_items[@]}" )
+        ;;
+      Delete)
+        select elem in "${list_ref[@]}"; do
+          _del_item="${elem}"
+          _del_index=$((REPLY - 1)) #use 0-based index for bash array
+          break
+        done
+        if [[ "${list_ref[$_del_index]}" == "${_del_item}" ]] ; then
+          unset list_ref[$_del_index]
+        else
+          die "Value at index '$_del_index' is '${list_ref[$_del_index]}' does not match selected value '${_del_item}'"
+        fi
+        ;;
+      Show)
+        echo "Contents of ${_varname}:"
+        echo "${list_ref[@]}"
+        echo
+        ;;
+      Quit)
+        _continue=$NO
+        ;;
+    esac
+  done
+}
+
+
+save_config() {
+  # Save the current state of all the CONFIG_VARS to temp file
+  local _vartype
+  for k in "${!CONFIG_NAMES[@]}" ; do
+    local -n _ref="$k"
+    _vartype="${CONFIG_NAMES[$k]}"
+    if [[ "${_vartype}" == 'array' ]] ; then
+      echo "${k}=("
+      for item in "${_ref[@]}" ; do
+        echo "  $item"
+      done
+      echo ')'
+    else
+      echo "${k}=$_ref"
+    fi
+    echo
+  done >"${TMP_CONFIG}"
+
+  #( declare -p ) >"${TMP_CONFIG}"
+  
+  # If temp is different, copy over the real config
+  #diff -q "${TMP_CONFIG}" "${CONFIG}" && mv "${TMP_CONFIG}" "${CONFIG}"
+}
+
+
+backup_config() {
+  local _real_cfg_dir _real_cfg_path
+  if ! [[ -l "${CONFIG}" ]] ; then
+    _real_cfg_dir="${HOME}"/.config/"${TOOLS_PKG_NAME}"
+    mkdir -p "${_real_cfg_dir}"
+    _real_cfg_path="${_real_cfg_dir}"/config
+    mv "${CONFIG}" "${_real_cfg_path}"
+    ln -s "${_real_cfg_path}" "${CONFIG}"
+  fi
 }
 
 
@@ -24,38 +164,14 @@ update_config() {
 # MAIN
 ###
 
-# Quick exit if config already exists
-[[ -f "${CONFIG}" ]] && {
-  echo "Config file already exists ..." 1>&2
-  ls -l "${CONFIG}"
-  cat "${CONFIG}"
-  exit 0
-}
+mk_config
 
-# make temp config for work-in-progress edits
-cp "${SAMPLE_CONFIG}" "${TMP_CONFIG}"
+get_config_varnames
 
-# # set DS_INSTANCE_NAME
-# DS_INSTANCE_NAME=$( get_instance_name )
-# update_config "DS_INSTANCE_NAME" "${DS_INSTANCE_NAME}"
+edit_vars
 
-# # set PAM_AUTH
-# if ask_no_yes "Enable PAM auth? [No]"; then
-#   update_config "PAM_AUTH" '$YES'
-# fi
+save_config
 
-# # set DB type
-# echo "What DB type? [mdb]" 1>&2
-# db_type=$( ask_enum mdb bdb )
-# update_config "DS_DB_LIB" "${db_type}"
+backup_config
 
-# Save finalized config
-REAL_CFG_DIR="${HOME}"/.config/"${TOOLS_PKG_NAME}"
-REAL_CFG_PATH="${REAL_CFG_DIR}"/config
-mkdir -p "${REAL_CFG_DIR}"
-mv "${TMP_CONFIG}" "${REAL_CFG_PATH}"
-ln -s "${REAL_CFG_PATH}" "${CONFIG}"
-echo "Config file is:"
-ls -l "${CONFIG}"
-cat "${CONFIG}"
-echo
+print_config
