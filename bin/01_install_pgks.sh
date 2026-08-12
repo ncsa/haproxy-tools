@@ -4,7 +4,8 @@ INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 
 
-#TODO - install Code Ready Builder?
+# Is Code Ready Builder actually needed?
+# Doesn't seem like it, everything working fine without it so far
 # from output of
 # + dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 # ...
@@ -20,6 +21,7 @@ install_pkgs() {
     certbot
     haproxy
     keepalived
+    nginx
   )
 
   #install repos

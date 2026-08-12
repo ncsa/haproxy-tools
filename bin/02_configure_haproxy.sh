@@ -19,13 +19,23 @@ mk_conf_d() {
 
 
 mk_global_conf() {
-  >"${CONF_D}"/00_global.cfg \
+  local _global_path
+  _global_path="${CONF_D}"/00_global.cfg
+  # return immediately if this was already done
+  [[ -f "${_global_conf}" ]] && return
+
+  # extract the "global" section from the default hsproxy.conf
+  >"${_global_conf}" \
   awk -v section=global -f "${BIN}"/get_haproxy_section.awk "${CONF_ORIG}"
   
-  >>"${CONF_D}"/00_global.cfg \
+  >>"${_global_conf}" \
   cat <<ENDHERE
-    ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11
+  ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11
 ENDHERE
+
+  # Backup original config
+  mv "${CONF_ORIG}" "${CONF_ORIG}".orig."${TS}"
+  echo "# See configs in /etc/haproxy/conf.d" > "${CONF_ORIG}"
 }
 
 
@@ -45,7 +55,7 @@ add_backend_servers() {
     [[ -z "${_remote_ip}" ]] && die "Couldn't get IP for '${_remote_name}'"
     _weight=1
     #TODO calculate weight by checking is_same_vlan()
-    _server_line="    server ${_remote_name} ${_remote_ip}:636 check weight ${_weight}"
+    _server_line="  server ${_remote_name} ${_remote_ip}:636 weight ${_weight}"
     sed -i "/___HAPROXY_BACKEND_SERVERS___/a ${_server_line}" "${CONF_D}"/30-ldaps.cfg
   done
 }
@@ -64,22 +74,6 @@ is_same_vlan() {
   # arp -n <target_ip>
 
   # Note: If the target IP is on a different VLAN, the traffic will be routed, and the ARP table will only show the MAC address of the default gateway, not the target device. If no gateway is involved, a failure to resolve the MAC address via ARP indicates they are on different broadcast domains (VLANs).
-}
-
-
-# reconfigure_haproxy_service() {
-#   # Reconfigure haproxy service to read files from conf.d
-#   local _src_dir
-#   _src_dir="${FILES}${SERVICE_DIR}"
-#   mkdir -p "${SERVICE_DIR}"
-#   cp -t "${SERVICE_DIR}" "${_src_dir}"/*.conf
-#   systemctl daemon-reload
-# }
-
-
-backup_original_config() {
-  mv "${CONF_ORIG}" "${CONF_ORIG}".orig
-  echo "# See configs in /etc/haproxy/conf.d" > "${CONF_ORIG}"
 }
 
 
@@ -106,8 +100,6 @@ mk_global_conf
 install_local_config_files
 
 add_backend_servers
-
-backup_original_config
 
 validate_configs
 

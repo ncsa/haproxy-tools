@@ -1,5 +1,5 @@
 #---------------------------------------------------------------------
-# /etc/haproxy/conf.d/20-ldap.cfg
+# /etc/haproxy/conf.d/31-ldap.cfg
 # Plain LDAP (389) - TCP mode
 #---------------------------------------------------------------------
 frontend ldap_frontend

@@ -1,0 +1,26 @@
+# ============================================================
+# ACME HTTP-01 challenge handling
+# Shared filesystem (NFS/GlusterFS) mounted identically on
+# every HAProxy node at /srv/acme-challenge — no matter which
+# node receives the request, it serves the same shared files.
+# ============================================================
+frontend ft_http_acme
+	bind *:80
+	mode http
+	option httplog
+
+	acl is_acme_challenge path_beg /.well-known/acme-challenge/
+
+	# Serve the challenge file directly from HAProxy using
+	# http-request return + a file-reading map (HAProxy 2.4+)
+	# This avoids needing a separate nginx/apache instance.
+	http-request return status 200 file-load /srv/acme-challenge/%[path,field(-1,/)] if is_acme_challenge
+
+	# Anything else on :80 — redirect to HTTPS or deny
+  # ... redirect useful if proxying for an HTTPS service, not needed for just LDAP
+	# http-request redirect scheme https code 301 unless is_acme_challenge
+	default_backend bk_deny_http
+
+backend bk_deny_http
+	mode http
+	http-request deny
