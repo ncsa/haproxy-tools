@@ -33,6 +33,17 @@ firewall_allow_ldaps() {
 }
 
 
+firewall_allow_acme_challenge() {
+  # allow incoming from the world to tcp:80
+  local _proto _source _dest _dport
+  _proto=tcp
+  _source=''
+  _dest=''
+  _dport=80
+  firewall_add_allow_rule "${_proto}" "${_source}" "${_dest}" "${_dport}"
+}
+
+
 firewall_allow_keepalived() {
   # allow incoming vrrp protocol from other keepalived servers
   local _hostname _proto _source _dest _dport
@@ -102,5 +113,7 @@ firewall_allow_ldaps
 firewall_allow_keepalived
 
 firewall_allow_haproxy_stats
+
+firewall_allow_acme_challenge
 
 configure_sysctl

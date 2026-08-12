@@ -20,15 +20,15 @@ mk_conf_d() {
 
 mk_global_conf() {
   local _global_path
-  _global_path="${CONF_D}"/00_global.cfg
+  _global_path="${CONF_D}"/00-global.cfg
   # return immediately if this was already done
-  [[ -f "${_global_conf}" ]] && return
+  [[ -f "${_global_path}" ]] && return
 
   # extract the "global" section from the default hsproxy.conf
-  >"${_global_conf}" \
+  >"${_global_path}" \
   awk -v section=global -f "${BIN}"/get_haproxy_section.awk "${CONF_ORIG}"
   
-  >>"${_global_conf}" \
+  >>"${_global_path}" \
   cat <<ENDHERE
   ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11
 ENDHERE
@@ -43,6 +43,8 @@ install_local_config_files() {
   local _src_dir
   _src_dir="${FILES}${CONF_D}"
   cp -t "${CONF_D}" "${_src_dir}"/*.cfg
+  #exclude ldaps config for now, it will fail until the cert has been created
+  find "${CONF_D}" -type f -name '*ldaps*' -delete
 }
 
 

@@ -3,21 +3,21 @@
 # Plain LDAP (389) - TCP mode
 #---------------------------------------------------------------------
 frontend ldap_frontend
-    bind *:389
-    mode tcp
-    default_backend ldap_backend
+  bind *:389
+  mode tcp
+  default_backend ldap_backend
 
 backend ldap_backend
-    mode tcp
-    balance leastconn
+  mode tcp
+  balance leastconn
 
-    option tcp-check
-    tcp-check connect
+  option tcp-check
+  tcp-check connect
 
-    # Optional LDAP-aware check (anonymous bind + expect bind response):
-    # tcp-check send-binary 300c02010160070201030400800000
-    # tcp-check expect binary 0a0100
+  # Optional LDAP-aware check (anonymous bind + expect bind response):
+  # tcp-check send-binary 300c02010160070201030400800000
+  # tcp-check expect binary 0a0100
 
-    server ds389-01 10.0.0.11:389 check inter 5s fall 3 rise 2
-    server ds389-02 10.0.0.12:389 check inter 5s fall 3 rise 2
-    server ds389-03 10.0.0.13:389 check inter 5s fall 3 rise 2
+  server ds389-01 10.0.0.11:389 check inter 5s fall 3 rise 2
+  server ds389-02 10.0.0.12:389 check inter 5s fall 3 rise 2
+  server ds389-03 10.0.0.13:389 check inter 5s fall 3 rise 2
