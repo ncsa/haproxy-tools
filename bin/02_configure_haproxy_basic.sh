@@ -58,7 +58,7 @@ add_backend_servers() {
     _weight=1
     #TODO calculate weight by checking is_same_vlan()
     _server_line="  server ${_remote_name} ${_remote_ip}:636 weight ${_weight}"
-    sed -i "/___HAPROXY_BACKEND_SERVERS___/a ${_server_line}" "${CONF_D}"/30-ldaps.cfg
+    sed -i "/___HAPROXY_BACKEND_SERVERS___/a\ ${_server_line}" "${CONF_D}"/30-ldaps.cfg
   done
 }
 
