@@ -5,24 +5,28 @@
 INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 
+[[ ${DEBUG} -eq ${YES} ]] && set -x
+
 TEST=$YES
 
 
 ## Add email to top config
 set_email() {
-  echo
-  echo "Set email"
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
+  info ""
+  info "Set email"
   /usr/bin/certbot \
     register \
     --email "${EMAIL}" \
     --no-eff-email \
     --agree-tos
-  echo "OK"
+  info "OK"
 }
 
 
 ## Make SAN (subject alternative name) names
 mk_SANs() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   if [[ -z "${SA_NAMES}" ]] ; then
     SA_NAMES="${KEEPALIVED_VIRTUAL_HOSTNAME}"
   fi
@@ -32,6 +36,7 @@ mk_SANs() {
 
 ## Test cert
 test_cert() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _rc
   TEST=$YES
   echo
@@ -44,6 +49,7 @@ test_cert() {
 
 
 get_cert() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _test_opts _domains _sans
   _test_opts=()
   [[ $TEST -eq $YES ]] && _test_opts=( '--dry-run' '--test-cert' )
@@ -67,15 +73,19 @@ get_cert() {
 
 
 show_certs() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   /usr/bin/certbot certificates
 }
 
 
 enable_certbot_renewals() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   systemctl start certbot-renew.timer
 }
 
+###
 # Main
+###
 
 certbot_extra_options=()
 [[ "$1" == "force" ]] && certbot_extra_options+='--force-renewal'

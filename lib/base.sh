@@ -1,4 +1,3 @@
-
 INSTALL_DIR='___INSTALL_DIR___'
 
 # load config if it exists
@@ -21,6 +20,12 @@ HOST=$( hostname -f )
 ETH_PRIMARY_IP=$( dig +short "${HOST}" )
 ETH_PRIMARY_INTERFACE=$( ip -br a s to "${ETH_PRIMARY_IP}" | awk '{print $1}' )
 
+# Common vars for functions and scripts
+BIN="${INSTALL_DIR}"/bin
+FILES="${INSTALL_DIR}"/files
+LIB="${INSTALL_DIR}"/lib
+
+
 # certificate related
 LETSENCRYPT_BASE=/etc/letsencrypt
 CERT_DIR="${LETSENCRYPT_BASE}"/live/"${HOST}"
@@ -28,6 +33,17 @@ CERT_HOST_KEY="${CERT_DIR}"/privkey.pem
 CERT_FULL_CHAIN="${CERT_DIR}"/fullchain.pem
 HAPROXY_CERT_DIR=/etc/haproxy/certs
 HAPROXY_PEM_PATH="${HAPROXY_CERT_DIR}"/haproxy.pem
+
+
+# process settings for DEBUG and VERBOSE from conf/config
+case "${DEBUG}" in
+  YES|yes|Y|y) DEBUG=$YES ;;
+  *) DEBUG=$NO ;;
+esac
+case "${VERBOSE}" in
+  YES|yes|Y|y) VERBOSE=$YES ;;
+  *) VERBOSE=$NO ;;
+esac
 
 
 ### FUNCTIONS
@@ -129,6 +145,43 @@ ask_enum() {
     break
   done
   echo "${_choice}"
+}
+
+
+install_files() {
+  # Install files from a location under $FILES
+  # PARAMETERS
+  #   1. Target_Dir
+  #      Absolute path to a directory on the filesystem to copy files into.
+  #      Target dir must also match a path under $FILES.
+  #   2. File_Mode (OPTIONAL)
+  #      New files will created with this mode.
+  #      Defaults to 0644.
+  #   3. File_Match_Pattern (OPTIONAL)
+  #      Only copy files matching this pattern (ie: *.conf)
+  #      Defaults to '*' (all files will be copied)
+  # NOTES
+  #   File_Mode is required in order to give a File_Match_Pattern
+  local _tgt_dir _mode _pattern _src_dir
+  _tgt_dir="$1"
+  _mode="$2"
+  _pattern="$3"
+  [[ "${_tgt_dir}" == /* ]] || die "Bad target dir '${_tgt_dir}' , must begin with /"
+  [[ -z "${_mode}" ]] && die "Missing mode (perms) for newly created files"
+  [[ -z "${_pattern}" ]] && _pattern='*'
+  let "_tgt_len = ${#_tgt_dir} + 1"
+  _src_dir="${FILES}${_tgt_dir}"
+  [[ -d "${_src_dir}" ]] || die "Src dir not found: '${_src_dir}'"
+  for f in $( find "${_src_dir}" -maxdepth 1 -type f -name "${_pattern}" ); do
+  install \
+    -D \
+    --compare \
+    --verbose \
+    --suffix="${TS}" \
+    --mode="${_mode}" \
+    -t "${_tgt_dir}" \
+    "${f}"
+  done
 }
 
 

@@ -2,8 +2,9 @@
 
 INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
-BIN="${INSTALL_DIR}"/bin
-FILES="${INSTALL_DIR}"/files
+
+[[ ${DEBUG} -eq ${YES} ]] && set -x
+
 CONF_D=/etc/haproxy/conf.d
 LDAPS_CONF="${CONF_D}"/30-ldaps.cfg
 # SERVICE_DIR=/etc/systemd/system/haproxy.service.d
@@ -11,6 +12,7 @@ LDAPS_CONF="${CONF_D}"/30-ldaps.cfg
 
 install_local_config_files() {
   # install the ldaps config
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _src_dir
   _src_dir="${FILES}${CONF_D}"
   cp --no-clobber -t "${CONF_D}" "${_src_dir}"/*.cfg
@@ -18,6 +20,7 @@ install_local_config_files() {
 
 
 set_cert_file() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   sed -i "s/___HAPROXY_PEM_PATH___/${HAPROXY_PEM_PATH}/" "${LDAPS_CONF}"
 }
 
@@ -25,6 +28,7 @@ set_cert_file() {
 # foreach backend server (defined in config)
 # determine what weight to assign (if same VLAN, high weight, otherwise low)
 add_backend_servers() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _remote_name _remote_ip _weight _server_line
   for _remote_name in "${HAPROXY_BACKEND_SERVERS[@]}"; do
     _remote_ip=$( hostname2ip "${_remote_name}" )
@@ -54,11 +58,13 @@ add_backend_servers() {
 
 
 validate_configs() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   "${BIN}"/haproxyctl check
 }
 
 
 restart_haproxy() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   "${BIN}"/haproxyctl restart
   sleep 2
   systemctl is-active --quiet haproxy || die 'haproxy service not running'

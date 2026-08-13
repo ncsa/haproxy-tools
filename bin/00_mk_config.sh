@@ -6,6 +6,8 @@
 INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 
+[[ ${DEBUG} -eq ${YES} ]] && set -x
+
 SAMPLE_CONFIG="${INSTALL_DIR}"/conf/example
 declare -A CONFIG_NAMES
 TMP_CONFIG="${INSTALL_DIR}"/conf/tmp
@@ -13,6 +15,7 @@ TMP_CONFIG="${INSTALL_DIR}"/conf/tmp
 
 
 mk_config() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   if [[ -f "${CONFIG}" ]] ; then
     echo 'Found existing config file.'
     ask_no_yes 'Want to review it?' || exit 0
@@ -23,6 +26,7 @@ mk_config() {
 
 
 get_config_varnames() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   # get variable names from config file
   local _config_parts _varname _context _vartype
   _config_parts=( $( awk -F= 'NF>1' "${CONFIG}" ) )
@@ -38,6 +42,7 @@ get_config_varnames() {
 
 
 print_live_config() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   # Print the current state of all the CONFIG_VARS
   local _vartype _var_names
   _var_names=( $( echo "${!CONFIG_NAMES[@]}" | sort ) )
@@ -59,6 +64,7 @@ print_live_config() {
 
 
 edit_vars() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   # start a loop to allow VARs to be edited
   local _next_action _keep_going _new_value _vartype
   _keep_going=$YES
@@ -89,6 +95,7 @@ edit_vars() {
 
 
 edit_array() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local -n list_ref="$1"
   local _varname _main_menu _continue _action _new_item _new_items _del_item _del_index
   _varname="$1"
@@ -139,6 +146,7 @@ edit_array() {
 
 
 save_config() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   # Save the current state of all the CONFIG_VARS to temp file
   print_live_config >"${TMP_CONFIG}"
 
@@ -156,6 +164,7 @@ save_config() {
 
 
 backup_config() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _real_cfg_dir _real_cfg_path
   if ! [[ -L "${CONFIG}" ]] ; then
     _real_cfg_dir="${HOME}"/.config/"${TOOLS_PKG_NAME}"

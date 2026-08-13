@@ -1,4 +1,12 @@
 ###
+# General
+###
+# DEBUG=YES
+DEBUG=NO
+# VERBOSE=YES
+VERBOSE=NO
+
+###
 # HAProxy related
 ###
 HAPROXY_BACKEND_SERVERS=(

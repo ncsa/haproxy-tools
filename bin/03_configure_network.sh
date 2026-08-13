@@ -3,9 +3,8 @@
 INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 
-set -x
+[[ ${DEBUG} -eq ${YES} ]] && set -x
 
-FILES="${INSTALL_DIR}"/files
 SYSCTL_DIR=/etc/sysctl.d
 IPTABLES_RULE_NUM=$( \
   iptables -t filter -L INPUT -n --line-numbers \
@@ -14,6 +13,7 @@ IPTABLES_RULE_NUM=$( \
 
 
 assert_puppet_disabled() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _puppet _lockfile
   _puppet=$( which puppet )
   [[ -z "${_puppet}" ]] && return 0
@@ -23,6 +23,7 @@ assert_puppet_disabled() {
 
 
 firewall_allow_ldaps() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   # allow incoming from the world to tcp:636
   local _proto _source _dest _dport
   _proto=tcp
@@ -34,6 +35,7 @@ firewall_allow_ldaps() {
 
 
 firewall_allow_acme_challenge() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   # allow incoming from the world to tcp:80
   local _proto _source _dest _dport
   _proto=tcp
@@ -45,6 +47,7 @@ firewall_allow_acme_challenge() {
 
 
 firewall_allow_keepalived() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   # allow incoming vrrp protocol from other keepalived servers
   local _hostname _proto _source _dest _dport
   for _hostname in "${KEEPALIVED_SERVERS[@]}"; do
@@ -58,6 +61,7 @@ firewall_allow_keepalived() {
 
 
 firewall_allow_haproxy_stats() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   # allow access to tcp:8404 only from trusted cidrs
   local _cidr _proto _source _dest _dport
   for _cidr in "${HAPROXY_STATS_ALLOWED_CIDRS[@]}"; do
@@ -71,6 +75,7 @@ firewall_allow_haproxy_stats() {
 
 
 firewall_add_allow_rule() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _proto _src _dest _dport _opt_p _opt_s _opt_d _opt_dport _all_opts
   _proto="${1}"
   _src="${2}"
@@ -93,10 +98,12 @@ firewall_add_allow_rule() {
 
 
 configure_sysctl() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _src_dir
   # copy sysctl.d files into place
-  _src_dir="${FILES}${SYSCTL_DIR}"
-  cp -t "${SYSCTL_DIR}" "${_src_dir}"/*.conf
+  # _src_dir="${FILES}${SYSCTL_DIR}"
+  # cp -t "${SYSCTL_DIR}" "${_src_dir}"/*.conf
+  install_files "${SYSCTL_DIR}" '0444' '*.conf'
   # restart sysctl
   sysctl --system
 }
@@ -105,6 +112,7 @@ configure_sysctl() {
 ###
 # MAIN
 ###
+[[ ${DEBUG} -eq ${YES} ]] && set -x
 
 assert_puppet_disabled
 

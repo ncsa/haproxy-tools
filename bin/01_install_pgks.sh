@@ -3,6 +3,7 @@
 INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 
+[[ ${DEBUG} -eq ${YES} ]] && set -x
 
 # Is Code Ready Builder actually needed?
 # Doesn't seem like it, everything working fine without it so far
@@ -13,6 +14,7 @@ INSTALL_DIR='___INSTALL_DIR___'
 # > It is recommended that you run /usr/bin/crb enable to enable the CRB
 # > repository.
 install_pkgs() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _repos _pkgs
   _repos=(
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
@@ -33,10 +35,12 @@ install_pkgs() {
 
 
 validate_haproxy() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   haproxy -v
 }
 
 validate_keepalived() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   keepalived --version
 }
 

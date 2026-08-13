@@ -3,7 +3,7 @@
 INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 
-set -x 
+[[ ${DEBUG} -eq ${YES} ]] && set -x
 
 BIN="${INSTALL_DIR}"/bin
 FILES="${INSTALL_DIR}"/files
@@ -15,6 +15,7 @@ KEEPALIVED_PEER_IP="${KEEPALIVED_SERVERS[0]}" #default, if state=BACKUP
 
 
 mk_conf_d() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   mkdir -p "${CONF_D}"
 }
 
@@ -22,6 +23,7 @@ mk_conf_d() {
 mk_keepalived_state() {
   # MASTER if local hostname is the first one in list of KEEPALIVED_SERVERS
   # BACKUP otherwise
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   if [[ "${HOST}" == "${KEEPALIVED_SERVERS[0]}" ]] ; then
     KEEPALIVED_STATE=MASTER
   fi
@@ -31,6 +33,7 @@ mk_keepalived_state() {
 mk_keepalived_priority() {
   # 150 if state is MASTER
   # 100 otherwise
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   if [[ "${KEEPALIVED_STATE}" == 'MASTER' ]] ; then
     KEEPALIVED_PRIORITY=150
   fi
@@ -38,6 +41,7 @@ mk_keepalived_priority() {
 
 
 mk_keepalived_peer_ip() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   # state was already determined based on comparing local ip to position in
   # ... KEEPALIVED_SERVERS
   # ... so if state=MASTER, peer IP is the second IP
@@ -52,11 +56,13 @@ mk_keepalived_peer_ip() {
 
 mk_keepalived_virtual_ip() {
   # get IP from KEEPALIVED_VIRTUAL_HOSTNAME (set in config)
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   KEEPALIVED_VIRTUAL_IP=$( hostname2ip "${KEEPALIVED_VIRTUAL_HOSTNAME}" )
 }
 
 
 replace_original_config() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _pattern
   _pattern='___ CUSTOM CONFIG INCLUDE FROM conf.d ___'
   # skip if config already updated
@@ -71,6 +77,7 @@ ENDHERE
 
 
 install_config_files() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _src_dir
   _src_dir="${FILES}${CONF_D}"
   cp -t "${CONF_D}" "${_src_dir}"/*.conf
@@ -78,9 +85,10 @@ install_config_files() {
 
 
 update_config_files() {
-  local _tunders _ref
   # get list of ___-bounded varnames in conf filesi
   # (tunders is short for triple-underscore-strings)
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
+  local _tunders _ref
   _tunders=( $( grep -h -oP '\b(___\w+___)' "${CONF_D}"/*.conf | sort -u ) )
   for tunder in "${_tunders[@]}" ; do
     # _varname="${v:3:$((${#v} - 6))}"
@@ -95,9 +103,10 @@ configure_notify() {
 }
 
 
-# foreach backend server (defined in config)
-# determine what weight to assign (if same VLAN, high weight, otherwise low)
 add_backend_servers() {
+  # foreach backend server (defined in config)
+  # determine what weight to assign (if same VLAN, high weight, otherwise low)
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _remote_name _remote_ip _weight _server_line
   for _remote_name in "${HAPROXY_BACKEND_SERVERS[@]}"; do
     _remote_ip=$( hostname2ip "${_remote_name}" )
@@ -111,10 +120,11 @@ add_backend_servers() {
 
 
 is_same_vlan() {
-  local _remomte_ip
-  _remote_ip=$1
   # test if the other IP is reachable on the same broadcast domain
   # (which implies same VLAN if no routing is involved) using ping or arp.
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
+  local _remomte_ip
+  _remote_ip=$1
 
   # # Ping the target IP
   # ping -c 1 <target_ip>
@@ -137,11 +147,13 @@ is_same_vlan() {
 
 
 validate_configs() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   haproxy -c -f "${CONF_ORIG}" -f "${CONF_D}" || die 'Error validating config files'
 }
 
 
 restart_haproxy() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
   systemctl restart haproxy
   sleep 2
   systemctl is-active --quiet haproxy || die 'haproxy service not running'
