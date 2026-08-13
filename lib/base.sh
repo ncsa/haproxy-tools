@@ -24,10 +24,10 @@ ETH_PRIMARY_INTERFACE=$( ip -br a s to "${ETH_PRIMARY_IP}" | awk '{print $1}' )
 # certificate related
 LETSENCRYPT_BASE=/etc/letsencrypt
 CERT_DIR="${LETSENCRYPT_BASE}"/live/"${HOST}"
-HOST_KEY="${CERT_DIR}"/privkey.pem
-HOST_CERT="${CERT_DIR}"/cert.pem
-CA_CERT="${CERT_DIR}"/chain.pem
-CA_NAME="LetsEncrypt CA"
+CERT_HOST_KEY="${CERT_DIR}"/privkey.pem
+CERT_FULL_CHAIN="${CERT_DIR}"/fullchain.pem
+HAPROXY_CERT_DIR=/etc/haproxy/certs
+HAPROXY_PEM_PATH="${HAPROXY_CERT_DIR}"/haproxy.pem
 
 
 ### FUNCTIONS

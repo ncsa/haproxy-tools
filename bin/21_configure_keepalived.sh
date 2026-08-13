@@ -50,6 +50,12 @@ mk_keepalived_peer_ip() {
 }
 
 
+mk_keepalived_virtual_ip() {
+  # get IP from KEEPALIVED_VIRTUAL_HOSTNAME (set in config)
+  KEEPALIVED_VIRTUAL_IP=$( hostname2ip "${KEEPALIVED_VIRTUAL_HOSTNAME}" )
+}
+
+
 replace_original_config() {
   local _pattern
   _pattern='___ CUSTOM CONFIG INCLUDE FROM conf.d ___'
@@ -150,6 +156,7 @@ mk_conf_d
 mk_keepalived_state
 mk_keepalived_priority
 mk_keepalived_peer_ip
+mk_keepalived_virtual_ip
 
 replace_original_config
 

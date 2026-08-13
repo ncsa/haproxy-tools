@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+
+INSTALL_DIR='___INSTALL_DIR___'
+. "${INSTALL_DIR}"/lib/base.sh
+
+ACTION="$0"
+
+case "$ACTION" in
+  start|stop|restart|reload|status)
+    systemctl "${ACTION}" haproxy
+    ;;
+  check|validate)
+    haproxy -x -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d \
+    || die 'Invalid config'
+    ;;
+  *)
+    die "Invalid action: '${ACTION}'"
+    ;;
+esac
