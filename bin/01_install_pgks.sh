@@ -24,6 +24,8 @@ install_pkgs() {
     haproxy
     keepalived
     nginx
+    nfs-utils
+    autofs
   )
 
   #install repos

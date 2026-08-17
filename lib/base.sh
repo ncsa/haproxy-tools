@@ -25,6 +25,9 @@ BIN="${INSTALL_DIR}"/bin
 FILES="${INSTALL_DIR}"/files
 LIB="${INSTALL_DIR}"/lib
 
+# shared filesystem (for cert challenge/response served by nginx)
+SHARED_FS_BASE=/srv
+CHALLENGE_BASE="${SHARED_FS_BASE}"/acme-challenge
 
 # certificate related
 LETSENCRYPT_BASE=/etc/letsencrypt
@@ -167,7 +170,7 @@ install_files() {
   _mode="$2"
   _pattern="$3"
   [[ "${_tgt_dir}" == /* ]] || die "Bad target dir '${_tgt_dir}' , must begin with /"
-  [[ -z "${_mode}" ]] && die "Missing mode (perms) for newly created files"
+  [[ -z "${_mode}" ]] && _mode='0644'
   [[ -z "${_pattern}" ]] && _pattern='*'
   let "_tgt_len = ${#_tgt_dir} + 1"
   _src_dir="${FILES}${_tgt_dir}"
@@ -181,6 +184,35 @@ install_files() {
     --mode="${_mode}" \
     -t "${_tgt_dir}" \
     "${f}"
+  done
+}
+
+
+update_tunders() {
+  # get list of ___-bounded varnames in files
+  # and replace them with the values of variables by the same name
+  # (excluding the bounding triple-underscores)
+  # (tunders is short for triple-underscore-strings)
+  # PARAMETERS
+  #   1. File_Pattern
+  #      Absolute path glob for files to update
+  # NOTES
+  #   None
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
+  local _file_pattern _dir _glob _files _tunders _ref
+  _file_pattern="${1}"
+  [[ -z "${_file_pattern}" ]] || die 'Missing or empty pattern'
+  [[ "${_file_pattern}" == /* ]] || die "Bad pattern'${_file_pattern}' , must begin with /"
+  _dir=$( dirname "${_file_pattern}" )
+  _glob=$( basename "${_file_pattern}" )
+  _files=( find "${_dir}" -maxdepth 1 -type f -name "${_glob}" )
+  for fn in "${_files[@]}" ; do
+    _tunders=( $( grep -h -oP '\b(___\w+___)' "${fn}" | sort -u ) )
+    for tunder in "${_tunders[@]}" ; do
+      # _varname="${v:3:$((${#v} - 6))}"
+      declare -n _ref="${tunder:3:$((${#tunder} - 6))}"
+      sed -i -e "s?$tunder?$_ref?" "${fn}"
+    done
   done
 }
 
