@@ -1,8 +1,8 @@
-# proxy-tools
+# haproxy-tools
 Set up and manage HAProxy server clusters with keepalived
 
 # Install these tools
-1. `export QS_GIT_REPO=https://github.com/ncsa/proxy-tools`
+1. `export QS_GIT_REPO=https://github.com/ncsa/haproxy-tools`
 1. `curl
 https://raw.githubusercontent.com/andylytical/quickstart/main/quickstart.sh
 | bash`

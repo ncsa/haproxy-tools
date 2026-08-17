@@ -19,7 +19,7 @@ install_autofs_configs() {
   # ACME_CHALLENGE_DIR needed in /etc/auto.nfs
   ACME_CHALLENGE_DIR=$( basename "${CHALLENGE_BASE}" )
   # update files with runtime values
-  for fn in "${_conf_files}" ; do
+  for fn in "${_conf_files[@]}" ; do
     update_tunders "${fn}"
   done
 }
