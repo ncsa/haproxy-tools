@@ -28,18 +28,21 @@ install_autofs_configs() {
 enable_autofs() {
   [[ ${DEBUG} -eq $YES ]] && set -x
   systemctl enable --now autofs
+  sleep 2
+  systemctl reload autofs
 }
 
 
 validate_mountpoints() {
   [[ ${DEBUG} -eq $YES ]] && set -x
   local _testfn
-  _testfn="${ACME_CHALLENGE_DIR}"/"${TS}"
-  ls "${ACME_CHALLENGE_DIR}" || die "ACME_CHALLENGE_DIR '${ACME_CHALLENGE_DIR}' not mounted"
+  _testfn="${CHALLENGE_BASE}"/"${TS}"
+  ls "${CHALLENGE_BASE}" || die "Acme challenge dir '${CHALLENGE_BASE}' not mounted"
   touch "${_testfn}" || die "Failed to make testfile '${_testfn}'"
   ls "${_testfn}" || die "Can't find testfile '${_testfn}'"
   rm "${_testfn}" || die "Failed to remove testfile '${_testfn}'"
 }
+
 
 
 ###

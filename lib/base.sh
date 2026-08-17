@@ -205,7 +205,7 @@ update_tunders() {
   [[ "${_file_pattern}" == /* ]] || die "Bad pattern'${_file_pattern}' , must begin with /"
   _dir=$( dirname "${_file_pattern}" )
   _glob=$( basename "${_file_pattern}" )
-  _files=( find "${_dir}" -maxdepth 1 -type f -name "${_glob}" )
+  _files=( $( find "${_dir}" -maxdepth 1 -type f -name "${_glob}" ) )
   for fn in "${_files[@]}" ; do
     _tunders=( $( grep -h -oP '\b(___\w+___)' "${fn}" | sort -u ) )
     for tunder in "${_tunders[@]}" ; do
