@@ -5,7 +5,6 @@ INSTALL_DIR='___INSTALL_DIR___'
 
 [[ ${DEBUG} -eq ${YES} ]] && set -x
 
-SYSCTL_DIR=/etc/sysctl.d
 IPTABLES_RULE_NUM=$( \
   iptables -t filter -L INPUT -n --line-numbers \
   | awk '/^[0-9]/{num=$1}END{print num}'
@@ -101,9 +100,7 @@ configure_sysctl() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _src_dir
   # copy sysctl.d files into place
-  # _src_dir="${FILES}${SYSCTL_DIR}"
-  # cp -t "${SYSCTL_DIR}" "${_src_dir}"/*.conf
-  install_files "${SYSCTL_DIR}" '0444' '*.conf'
+  install_files /etc/sysctl.d '0444' '*.conf'
   # restart sysctl
   sysctl --system
 }
