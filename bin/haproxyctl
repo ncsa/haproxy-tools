@@ -3,7 +3,7 @@
 INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 
-ACTION="$0"
+ACTION="$1"
 
 case "$ACTION" in
   start|stop|restart|reload|status)

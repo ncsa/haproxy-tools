@@ -23,7 +23,7 @@ mk_global_conf() {
   # extract the "global" section from the default hsproxy.conf
   >"${_global_path}" \
   awk -v section=global -f "${BIN}"/get_haproxy_section.awk "${CONF_ORIG}"
-  
+
   >>"${_global_path}" \
   cat <<ENDHERE
   ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11
