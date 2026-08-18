@@ -5,6 +5,18 @@ INSTALL_DIR='___INSTALL_DIR___'
 
 [[ ${DEBUG} -eq $YES ]] && set -x
 
+
+install_nginx_configs() {
+  [[ ${DEBUG} -eq $YES ]] && set -x
+  # override default config from redhat
+  install_files '/etc/nginx' '0444' 'nginx.conf'
+  # install local files/servers
+  install_files '/etc/nginx/conf.d' '0444' '*.conf'
+  # update configs with runtime data
+  update_tunders '/etc/nginx/conf.d/*.conf'
+}
+
+
 validate_configs() {
   [[ ${DEBUG} -eq $YES ]] && set -x
   nginx -t
@@ -22,8 +34,7 @@ restart_nginx() {
 ###
 # MAIN
 ###
-
-install_files '/etc/nginx/conf.d' '0444' '*.conf'
+install_nginx_configs
 
 validate_configs
 
