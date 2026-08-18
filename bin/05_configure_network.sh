@@ -3,6 +3,8 @@
 INSTALL_DIR='___INSTALL_DIR___'
 . "${INSTALL_DIR}"/lib/base.sh
 
+PRG="$0"
+
 [[ ${DEBUG} -eq ${YES} ]] && set -x
 
 IPTABLES_RULE_NUM=$( \
@@ -17,6 +19,7 @@ assert_puppet_disabled() {
   _puppet=$( which puppet )
   [[ -z "${_puppet}" ]] && return 0
   _lockfile=$( "${_puppet}" agent --configprint agent_disabled_lockfile )
+  [[ -f "${_lockfile}" ]] || "${_puppet}" agent disable "disabled by '$PRG'"
   [[ -f "${_lockfile}" ]] || die 'puppet is still enabled'
 }
 
