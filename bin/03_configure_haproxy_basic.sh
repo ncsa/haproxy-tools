@@ -37,12 +37,9 @@ ENDHERE
 
 install_local_config_files() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
-  # local _src_dir
-  # _src_dir="${FILES}${CONF_D}"
-  # cp --no-clobber -t "${CONF_D}" "${_src_dir}"/*.cfg
   install_files "${CONF_D}" '0444' '*.cfg'
   #exclude ldaps config for now, it will fail until the cert has been created
-  find "${CONF_D}" -type f -name '*ldaps*' -delete
+  find "${CONF_D}" -type f -name '*ldaps.cfg' -delete
 }
 
 

@@ -201,7 +201,7 @@ update_tunders() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
   local _file_pattern _dir _glob _files _tunders _ref
   _file_pattern="${1}"
-  [[ -z "${_file_pattern}" ]] || die 'Missing or empty file_pattern'
+  [[ -z "${_file_pattern}" ]] && die 'Missing or empty file_pattern'
   [[ "${_file_pattern}" == /* ]] || die "Bad pattern'${_file_pattern}' , must begin with /"
   _dir=$( dirname "${_file_pattern}" )
   _glob=$( basename "${_file_pattern}" )
