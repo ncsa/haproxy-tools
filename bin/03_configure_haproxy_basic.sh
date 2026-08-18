@@ -67,8 +67,6 @@ mk_global_conf
 
 install_local_config_files
 
-add_backend_servers
-
 validate_configs
 
 restart_haproxy

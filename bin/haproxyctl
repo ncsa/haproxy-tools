@@ -10,7 +10,7 @@ case "$ACTION" in
     systemctl "${ACTION}" haproxy
     ;;
   check|validate)
-    haproxy -x -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d \
+    haproxy -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d \
     || die 'Invalid config'
     ;;
   *)
