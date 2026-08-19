@@ -96,7 +96,7 @@ update_config_files() {
   #   declare -n _ref="${tunder:3:$((${#tunder} - 6))}"
   #   sed -i -e "s?$tunder?$_ref?" "${CONF_D}"/*.conf
   # done
-  update_tunders "${CONF_D}"/*.conf
+  update_tunders "${CONF_D}"/'*.conf'
 }
 
 
@@ -117,11 +117,10 @@ configure_notify() {
 
 validate_configs() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
-  haproxy -c -f "${CONF_ORIG}" -f "${CONF_D}" || die 'Error validating config files'
+  keepalived -t -f "${CONF_ORIG}"
 }
 
-
-restart_haproxy() {
+restart_keepalived() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
   systemctl restart haproxy
   sleep 2
@@ -146,3 +145,5 @@ install_keepalived_configs
 update_config_files
 
 configure_notify
+
+validate_configs
