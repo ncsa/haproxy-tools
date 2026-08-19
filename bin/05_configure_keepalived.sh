@@ -76,11 +76,12 @@ ENDHERE
 }
 
 
-install_config_files() {
+install_keepalived_configs() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
-  local _src_dir
-  _src_dir="${FILES}${CONF_D}"
-  cp -t "${CONF_D}" "${_src_dir}"/*.conf
+  # local _src_dir
+  # _src_dir="${FILES}${CONF_D}"
+  # cp -t "${CONF_D}" "${_src_dir}"/*.conf
+  install_files "${CONF_D}" '0444' '*.conf'
 }
 
 
@@ -88,51 +89,19 @@ update_config_files() {
   # get list of ___-bounded varnames in conf filesi
   # (tunders is short for triple-underscore-strings)
   [[ ${DEBUG} -eq ${YES} ]] && set -x
-  local _tunders _ref
-  _tunders=( $( grep -h -oP '\b(___\w+___)' "${CONF_D}"/*.conf | sort -u ) )
-  for tunder in "${_tunders[@]}" ; do
-    # _varname="${v:3:$((${#v} - 6))}"
-    declare -n _ref="${tunder:3:$((${#tunder} - 6))}"
-    sed -i -e "s?$tunder?$_ref?" "${CONF_D}"/*.conf
-  done
+  # local _tunders _ref
+  # _tunders=( $( grep -h -oP '\b(___\w+___)' "${CONF_D}"/*.conf | sort -u ) )
+  # for tunder in "${_tunders[@]}" ; do
+  #   # _varname="${v:3:$((${#v} - 6))}"
+  #   declare -n _ref="${tunder:3:$((${#tunder} - 6))}"
+  #   sed -i -e "s?$tunder?$_ref?" "${CONF_D}"/*.conf
+  # done
+  update_tunders "${CONF_D}"/*.conf
 }
 
 
 configure_notify() {
   ln -s "${BIN}"/notify.sh /etc/keepalived/notify.sh
-}
-
-
-add_backend_servers() {
-  # foreach backend server (defined in config)
-  # determine what weight to assign (if same VLAN, high weight, otherwise low)
-  [[ ${DEBUG} -eq ${YES} ]] && set -x
-  local _remote_name _remote_ip _weight _server_line
-  for _remote_name in "${HAPROXY_BACKEND_SERVERS[@]}"; do
-    _remote_ip=$( hostname2ip "${_remote_name}" )
-    [[ -z "${_remote_ip}" ]] && die "Couldn't get IP for '${_remote_name}'"
-    _weight=1
-    #TODO calculate weight by checking is_same_vlan()
-    _server_line="    server ${_remote_name} ${_remote_ip}:636 check weight ${_weight}"
-    sed -i "/___HAPROXY_BACKEND_SERVERS___/a ${_server_line}" "${CONF_D}"/30-ldaps.cfg
-  done
-}
-
-
-is_same_vlan() {
-  # test if the other IP is reachable on the same broadcast domain
-  # (which implies same VLAN if no routing is involved) using ping or arp.
-  [[ ${DEBUG} -eq ${YES} ]] && set -x
-  local _remomte_ip
-  _remote_ip=$1
-
-  # # Ping the target IP
-  # ping -c 1 <target_ip>
-
-  # # Check ARP table for MAC address resolution (indicates Layer 2 connectivity)
-  # arp -n <target_ip>
-
-  # Note: If the target IP is on a different VLAN, the traffic will be routed, and the ARP table will only show the MAC address of the default gateway, not the target device. If no gateway is involved, a failure to resolve the MAC address via ARP indicates they are on different broadcast domains (VLANs).
 }
 
 
@@ -172,7 +141,7 @@ mk_keepalived_virtual_ip
 
 replace_original_config
 
-install_config_files
+install_keepalived_configs
 
 update_config_files
 
