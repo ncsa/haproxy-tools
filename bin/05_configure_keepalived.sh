@@ -105,26 +105,17 @@ configure_notify() {
 }
 
 
-# reconfigure_haproxy_service() {
-#   # Reconfigure haproxy service to read files from conf.d
-#   local _src_dir
-#   _src_dir="${FILES}${SERVICE_DIR}"
-#   mkdir -p "${SERVICE_DIR}"
-#   cp -t "${SERVICE_DIR}" "${_src_dir}"/*.conf
-#   systemctl daemon-reload
-# }
-
-
 validate_configs() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
   keepalived -t -f "${CONF_ORIG}"
 }
 
-restart_keepalived() {
+
+enable_keepalived() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
-  systemctl restart haproxy
+  systemctl enable --now keepalived
   sleep 2
-  systemctl is-active --quiet haproxy || die 'haproxy service not running'
+  systemctl is-active --quiet keepalived || die 'keepalived service not running'
 }
 
 
@@ -147,3 +138,5 @@ update_config_files
 configure_notify
 
 validate_configs
+
+enable_keepalived
