@@ -218,7 +218,11 @@ update_tunders() {
 
 
 mk_passwd() {
-  tr -dc A-Za-z0-9 </dev/urandom | head -c 50
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
+  local _length
+  _length="$1"
+  [[ -z "${_length}" ]] && _length=50
+  tr -dc A-Za-z0-9 </dev/urandom | head -c "${_length}"
 }
 
 
@@ -255,5 +259,3 @@ validate_dir() {
   }
   return ${YES}
 }
-
-

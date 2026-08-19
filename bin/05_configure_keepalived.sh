@@ -11,7 +11,7 @@ CONF_ORIG=/etc/keepalived/keepalived.conf
 CONF_D=/etc/keepalived/conf.d
 KEEPALIVED_STATE=BACKUP #default, can get updated by mk_keepalived_state()
 KEEPALIVED_PRIORITY=100 #default, can get updated by mk_keepalived_priority()
-KEEPALIVED_PEER_IP="${KEEPALIVED_SERVERS[0]}" #default, if state=BACKUP
+KEEPALIVED_PEER_IP= #set by mk_keepalived_peer_ip()
 
 
 mk_conf_d() {
@@ -45,11 +45,11 @@ mk_keepalived_peer_ip() {
   # state was already determined based on comparing local ip to position in
   # ... KEEPALIVED_SERVERS
   # ... so if state=MASTER, peer IP is the second IP
-  # ... likewise, if state=BACKUP, peer IP is the first IP
-  # default setting already assumed state=BACKUP
-  # so only need to check if state=MASTER and if so, update appropriately
+  # ... otherwise, it's the first IP
   if [[ "${KEEPALIVED_STATE}" == 'MASTER' ]] ; then
     KEEPALIVED_PEER_IP=$( hostname2ip "${KEEPALIVED_SERVERS[1]}" )
+  else
+    KEEPALIVED_PEER_IP=$( hostname2ip "${KEEPALIVED_SERVERS[0]}" )
   fi
 }
 
