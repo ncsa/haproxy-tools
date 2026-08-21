@@ -5,18 +5,10 @@ INSTALL_DIR='___INSTALL_DIR___'
 
 [[ ${DEBUG} -eq ${YES} ]] && set -x
 
-INSTALLER_URL=https://raw.githubusercontent.com/acmesh-official/acme.sh/refs/heads/master/acme.sh
-
 
 install_acme() {
   [[ -f "${ACME}" ]] && return
-  local _installer
-  _installer=$( mktemp )
-  curl -O "${_installer}" "${INSTALLER_URL}"
-  sh "${_installer}" \
-    -s "${KEEPALIVED_NOTIFY_EMAIL_RECIPIENT}" \
-    --log
-  rm "${_installer}"
+  curl https://get.acme.sh | sh -s email="${KEEPALIVED_NOTIFY_EMAIL_RECIPIENT}"
 }
 
 
