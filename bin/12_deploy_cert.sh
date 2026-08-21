@@ -22,17 +22,8 @@ install_cert() {
 }
 
 
-check_haproxy_cert() {
-  [[ ${DEBUG} -eq ${YES} ]] && set -x
-  echo "show ssl cert ${HAPROXY_PEM_PATH}" \
-  | socat "${HAPROXY_STATS_SOCKET}" -
-}
-
-
 ###
 # Main
 ###
 
 install_cert
-
-check_haproxy_cert

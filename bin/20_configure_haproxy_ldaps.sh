@@ -12,16 +12,13 @@ LDAPS_CONF="${CONF_D}"/30-ldaps.cfg
 
 install_local_config_files() {
   # install the ldaps config
-  [[ ${DEBUG} -eq ${YES} ]] && set -x
-  local _src_dir
-  _src_dir="${FILES}${CONF_D}"
-  cp --no-clobber -t "${CONF_D}" "${_src_dir}"/*.cfg
+  install_files "${CONF_D}" '0444' 30-ldaps.cfg
 }
 
 
 set_cert_file() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
-  sed -i "s/___HAPROXY_PEM_PATH___/${HAPROXY_PEM_PATH}/" "${LDAPS_CONF}"
+  update_tunders "${LDAPS_CONF}"
 }
 
 
@@ -81,6 +78,4 @@ set_cert_file
 
 add_backend_servers
 
-validate_configs
-
-restart_haproxy
+validate_configs && restart_haproxy

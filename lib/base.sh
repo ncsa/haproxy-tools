@@ -214,6 +214,7 @@ update_tunders() {
     for tunder in "${_tunders[@]}" ; do
       # _varname="${v:3:$((${#v} - 6))}"
       declare -n _ref="${tunder:3:$((${#tunder} - 6))}"
+      [[ -z "${_ref}" ]] && continue #dont do anything if REF is not defined
       sed -i -e "s?$tunder?$_ref?" "${fn}"
     done
   done
