@@ -20,12 +20,12 @@ install_pkgs() {
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
   )
   _pkgs=(
-    certbot
+    autofs
     haproxy
     keepalived
-    nginx
     nfs-utils
-    autofs
+    nginx
+    socat
   )
 
   #install repos
