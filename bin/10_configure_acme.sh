@@ -5,8 +5,6 @@ INSTALL_DIR='___INSTALL_DIR___'
 
 [[ ${DEBUG} -eq ${YES} ]] && set -x
 
-ACME_DIR=/root/.acme.sh
-ACME="${ACME_DIR}"/acme.sh
 INSTALLER_URL=https://raw.githubusercontent.com/acmesh-official/acme.sh/refs/heads/master/acme.sh
 
 

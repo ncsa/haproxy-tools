@@ -5,14 +5,11 @@ INSTALL_DIR='___INSTALL_DIR___'
 
 [[ ${DEBUG} -eq ${YES} ]] && set -x
 
-ACME_DIR=/root/.acme.sh
-ACME="${ACME_DIR}"/acme.sh
-HAPROXY_STATS_SOCKET=/var/lib/haproxy/stats
-
 
 # Deploy the cert to haproxy
 # ACME.sh will remember the deploy process and repeat it automatically at
 # renewal
+# https://github.com/haproxy/wiki/wiki/Letsencrypt-integration-with-HAProxy-and-acme.sh
 install_cert() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
   DEPLOY_HAPROXY_HOT_UPDATE=yes \
@@ -27,8 +24,8 @@ install_cert() {
 
 check_haproxy_cert() {
   [[ ${DEBUG} -eq ${YES} ]] && set -x
-  echo "show ssl cert ${HAPROXY_CERT_DIR}/*.pem" \
-  | socat "${HAPROXY_STATS_SOCKET}"
+  echo "show ssl cert ${HAPROXY_PEM_PATH}" \
+  | socat "${HAPROXY_STATS_SOCKET}" -
 }
 
 

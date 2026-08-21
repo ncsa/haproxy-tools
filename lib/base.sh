@@ -30,12 +30,15 @@ SHARED_FS_BASE=/srv
 CHALLENGE_BASE="${SHARED_FS_BASE}"/acme-challenge
 
 # certificate related
-LETSENCRYPT_BASE=/etc/letsencrypt
-CERT_DIR="${LETSENCRYPT_BASE}"/live/"${HOST}"
-CERT_HOST_KEY="${CERT_DIR}"/privkey.pem
-CERT_FULL_CHAIN="${CERT_DIR}"/fullchain.pem
+#LETSENCRYPT_BASE=/etc/letsencrypt
+#CERT_DIR="${LETSENCRYPT_BASE}"/live/"${HOST}"
+#CERT_HOST_KEY="${CERT_DIR}"/privkey.pem
+#CERT_FULL_CHAIN="${CERT_DIR}"/fullchain.pem
+ACME_DIR=/root/.acme.sh
+ACME="${ACME_DIR}"/acme.sh
 HAPROXY_CERT_DIR=/etc/haproxy/certs
-HAPROXY_PEM_PATH="${HAPROXY_CERT_DIR}"/haproxy.pem
+HAPROXY_PEM_PATH="${HAPROXY_CERT_DIR}"/"${HOST}".pem
+HAPROXY_STATS_SOCKET=/var/lib/haproxy/stats
 
 
 # process settings for DEBUG and VERBOSE from conf/config
