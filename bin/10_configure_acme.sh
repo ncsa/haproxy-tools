@@ -12,8 +12,26 @@ install_acme() {
 }
 
 
+set_letsencrypt_ca() {
+  "${ACME}" \
+    --server letsencrypt \
+    --set-default-ca
+}
+
+
+enable_logging() {
+  "${ACME}" \
+    --list \
+    --log
+}
+
+
 ###
 # Main
 ###
 
 install_acme
+
+set_letsencrypt_ca
+
+enable_logging

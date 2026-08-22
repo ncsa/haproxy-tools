@@ -5,8 +5,7 @@ INSTALL_DIR='___INSTALL_DIR___'
 
 [[ ${DEBUG} -eq ${YES} ]] && set -x
 
-INSTALLER_URL=https://raw.githubusercontent.com/acmesh-official/acme.sh/refs/heads/master/acme.sh
-TEST=$YES
+TEST=$NO
 
 
 ## Make SAN (subject alternative name) names
@@ -27,6 +26,7 @@ test_cert() {
   get_cert
   _rc=$?
   TEST=$NO
+  [[ $_rc -eq 0 ]] && remove_cert
   return $_rc
 }
 
@@ -43,14 +43,12 @@ get_cert() {
   [[ $TEST -eq $YES ]] && _msg="${_msg} TEST"
   _msg="${_msg} cert"
   info "${_msg}"
-  set -x
   "${ACME}" \
     --issue \
     --webroot "${CHALLENGE_BASE}" \
     -d "${_domains}" \
     "${_test_opts[@]}" \
   ;
-  set +x
 }
 
 
@@ -60,11 +58,27 @@ show_certs() {
 }
 
 
+remove_cert() {
+  [[ ${DEBUG} -eq ${YES} ]] && set -x
+  local _conf_path _cert_dir
+  "${ACME}" \
+    --remove \
+    -d "${HOST}"
+  _conf_path=$(
+    "${ACME}" \
+      --info \
+      -d "${HOST}" \
+      | grep '^DOMAIN_CONF' \
+      | cut -d= -f2 )
+  _cert_dir=$( dirname "${_conf_path}" )
+  rm -rf "${_cert_dir}"
+}
+
+
 ###
 # Main
 ###
 
-
-test_cert && get_cert
+get_cert
 
 show_certs
